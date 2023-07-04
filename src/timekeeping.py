@@ -1,4 +1,4 @@
-
+import time
 
 class Timer:
     def __init__(self, fps, seconds):
@@ -20,3 +20,17 @@ class Timer:
     def reset(self):
         self._tick_count = 0
         self._completed = False
+
+
+class Clock:
+    def __init__(self, fps=60):
+        self._fps = 1 / fps
+        self._start_time = time.time()
+
+    def tick(self):
+        current_time = time.time()
+
+        while current_time - self._start_time < self._fps:
+            current_time = time.time()
+
+        self._start_time = time.time()

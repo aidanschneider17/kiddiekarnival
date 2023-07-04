@@ -1,5 +1,6 @@
 import pygame
 from objects import *
+from timekeeping import *
 
 WIDTH = 1300
 
@@ -23,7 +24,7 @@ def set_pixels():
         row = []
         x = 10
         for j in range(PIXEL_WIDTH):
-            row.append(Pixel(x, y, PIXEL_SIZE, BLACK, WIN))
+            row.append(Pixel(x, y, PIXEL_SIZE, WHITE, WIN))
             x += 20
         pixels.append(row)
         y += 20
@@ -57,11 +58,11 @@ def main():
     left_paddle = Game_Element(len(pixels)-2, len(pixels)//2, 2, 8, BLUE, pixels, None)
     left_paddle.custom_move('n')
 
-    clock = pygame.time.Clock()
+    clock = Clock(FPS)
     move_timer = Timer(FPS, 0.1)
     run = True
     while run:
-        clock.tick(FPS)
+        clock.tick()
         move_timer.tick()
 
         for event in pygame.event.get():

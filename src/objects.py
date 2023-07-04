@@ -5,27 +5,6 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0 , 255)
 
-class Timer:
-    def __init__(self, fps, seconds):
-        self._tick_count = 0
-        self._end_ticks = seconds * fps - 1
-        self._completed = False
-
-    @property
-    def completed(self):
-        return self._completed
-    
-
-    def tick(self):
-        if not self._completed:
-            self._tick_count += 1
-            if self._tick_count == self._end_ticks:
-                self._completed = True
-
-    def reset(self):
-        self._tick_count = 0
-        self._completed = False
-
 class Pixel:
     def __init__(self, x, y, size, color, win):
         self._rect = pygame.Rect(x, y, size, size)
@@ -126,7 +105,7 @@ class Game_Element:
     def __draw(self, x_add, y_add):
         for i in range(self._width):
             for j in range(self._height):
-                self._pixels[self._y+j][self._x+i].color = BLACK
+                self._pixels[self._y+j][self._x+i].color = WHITE
         self._x += x_add
         self._y += y_add
         for i in range(self._width):
