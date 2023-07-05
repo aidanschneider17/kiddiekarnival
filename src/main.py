@@ -24,26 +24,50 @@ def set_pixels():
         row = []
         x = 10
         for j in range(PIXEL_WIDTH):
-            row.append(Pixel(x, y, PIXEL_SIZE, WHITE, WIN))
+            row.append(Pixel(x, y, PIXEL_SIZE, BLACK, WIN))
             x += 20
         pixels.append(row)
         y += 20
 
     return pixels
 
-def handle_ball(ball, left_paddle):
-    if ball.x + ball.width == left_paddle.x and ball.y >= left_paddle.y and ball.y + \
-    ball.height <= left_paddle.y + left_paddle.height:
-        if ball.y < (left_paddle.y + left_paddle.height) / 2:
-            ball.direction = [-1, -1]
-        else:
-            ball.direction = [-1, 1]
+def handle_ball(ball, paddle, pixels_length):
+    x_direction = None
 
-def handle_paddles(left_paddle, keys_pressed):
+    if ball.x == 0 and paddle.x == 0:
+        paddle.score += 1
+    elif ball.x + ball.width == pixels_length and paddle.x + paddle.width == pixels_length:
+        paddle.score += 1
+
+    elif (ball.x + ball.width == paddle.x or ball.x == paddle.x + paddle.width) and \
+        ball.y >= paddle.y and ball.y + ball.height <= paddle.y + paddle.height:
+        if paddle.x == 0:
+            x_direction = 1
+        else:
+            x_direction = -1
+
+        if ball.y < paddle.y + (paddle.height / 4):
+            ball.direction = [x_direction, -2]
+        elif ball.y < paddle.y + (paddle.height / 2):
+            ball.direction = [x_direction, -1]
+        elif ball.y < paddle.y + (paddle.height / 4 * 3):
+            ball.direction = [x_direction, 1]
+        else:
+            ball.direction = [x_direction, 2]
+
+
+def handle_paddles(left_paddle, right_paddle, keys_pressed):
     if keys_pressed[pygame.K_UP]:
+        right_paddle.custom_move('n')
+    if keys_pressed[pygame.K_DOWN]:
+        right_paddle.custom_move('s')
+    if keys_pressed[pygame.K_w]:
         left_paddle.custom_move('n')
-    elif keys_pressed[pygame.K_DOWN]:
+    if keys_pressed[pygame.K_s]:
         left_paddle.custom_move('s')
+
+def handle_win(ball, left_paddle, right_paddle):
+    return not left_paddle.score == 5 or right_paddle.score == 5
 
 def draw_window(pixels):
     for i in range(len(pixels)):
@@ -55,8 +79,12 @@ def draw_window(pixels):
 def main():
     pixels = set_pixels()
     ball = Game_Element(len(pixels)//2, len(pixels)//2, 2, 2, RED, pixels, [1, 0])
-    left_paddle = Game_Element(len(pixels)-2, len(pixels)//2, 2, 8, BLUE, pixels, None)
+    right_paddle = Game_Element(len(pixels)-2, len(pixels)//2, 2, 16, BLUE, pixels, None)
+    left_paddle = Game_Element(0, len(pixels)//2, 2, 16, BLUE, pixels, None)
     left_paddle.custom_move('n')
+    right_paddle.custom_move('n')
+    test = Number(len(pixels)//2, 0, WHITE, pixels, 0)
+    test.draw()
 
     clock = Clock(FPS)
     move_timer = Timer(FPS, 0.1)
@@ -65,6 +93,8 @@ def main():
         clock.tick()
         move_timer.tick()
 
+        run = handle_win(ball, left_paddle, right_paddle)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -72,10 +102,13 @@ def main():
         keys_pressed = pygame.key.get_pressed()
 
         if move_timer.completed:
-            handle_paddles(left_paddle, keys_pressed)
-            handle_ball(ball, left_paddle)
+            handle_paddles(left_paddle, right_paddle, keys_pressed)
+            handle_ball(ball, left_paddle, len(pixels))
+            handle_ball(ball, right_paddle, len(pixels))
+            test.draw()
             ball.move()
             left_paddle.move()
+            right_paddle.move()
             move_timer.reset()
 
         draw_window(pixels)
