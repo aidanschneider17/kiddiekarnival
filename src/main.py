@@ -31,13 +31,16 @@ def set_pixels():
 
     return pixels
 
-def handle_ball(ball, paddle, pixels_length):
+def handle_ball(ball, paddle, pixels_length, left_score, right_score):
     x_direction = None
 
     if ball.x == 0 and paddle.x == 0:
         paddle.score += 1
+        left_score.num = paddle.score
+
     elif ball.x + ball.width == pixels_length and paddle.x + paddle.width == pixels_length:
         paddle.score += 1
+        right_score.num = paddle.score
 
     elif (ball.x + ball.width == paddle.x or ball.x == paddle.x + paddle.width) and \
         ball.y >= paddle.y and ball.y + ball.height <= paddle.y + paddle.height:
@@ -83,8 +86,10 @@ def main():
     left_paddle = Game_Element(0, len(pixels)//2, 2, 16, BLUE, pixels, None)
     left_paddle.custom_move('n')
     right_paddle.custom_move('n')
-    test = Number(len(pixels)//2, 0, WHITE, pixels, 0)
-    test.draw()
+    left_score = Number(len(pixels)//2-7, 0, WHITE, pixels, 0)
+    right_score = Number(len(pixels)//2+3, 0, WHITE, pixels, 0)
+    left_score.draw()
+    right_score.draw()
 
     clock = Clock(FPS)
     move_timer = Timer(FPS, 0.1)
@@ -103,9 +108,10 @@ def main():
 
         if move_timer.completed:
             handle_paddles(left_paddle, right_paddle, keys_pressed)
-            handle_ball(ball, left_paddle, len(pixels))
-            handle_ball(ball, right_paddle, len(pixels))
-            test.draw()
+            handle_ball(ball, left_paddle, len(pixels), left_score, right_score)
+            handle_ball(ball, right_paddle, len(pixels), left_score, right_score)
+            left_score.draw()
+            right_score.draw()
             ball.move()
             left_paddle.move()
             right_paddle.move()

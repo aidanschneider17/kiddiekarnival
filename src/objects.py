@@ -219,6 +219,7 @@ class Number:
     @num.setter
     def num(self, num):
         self._num = num
+        self._num_shape = numbers[num]
         self.draw()
     
     def draw(self):
