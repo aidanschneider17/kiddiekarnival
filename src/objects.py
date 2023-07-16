@@ -166,7 +166,7 @@ class Game_Element:
                 self.__draw(len(self._pixels)//2, len(self._pixels)//2 - self._y)
                 self._direction = [1, 0]
             elif self._x + self._width == len(self._pixels):
-                self.__draw(-len(self._pixels)//2, len(self._pixels)//2)
+                self.__draw(-len(self._pixels)//2, len(self._pixels)//2 - self._y)
                 self._direction = [-1, 0]
             elif self._y == 0 or self._y == len(self._pixels) - self._height:
                 self._direction[1] = self._direction[1] * -1

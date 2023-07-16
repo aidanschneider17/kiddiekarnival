@@ -36,11 +36,11 @@ def handle_ball(ball, paddle, pixels_length, left_score, right_score):
 
     if ball.x == 0 and paddle.x == 0:
         paddle.score += 1
-        left_score.num = paddle.score
+        right_score.num = paddle.score
 
     elif ball.x + ball.width == pixels_length and paddle.x + paddle.width == pixels_length:
         paddle.score += 1
-        right_score.num = paddle.score
+        left_score.num = paddle.score
 
     elif (ball.x + ball.width == paddle.x or ball.x == paddle.x + paddle.width) and \
         ball.y >= paddle.y and ball.y + ball.height <= paddle.y + paddle.height:
@@ -69,9 +69,6 @@ def handle_paddles(left_paddle, right_paddle, keys_pressed):
     if keys_pressed[pygame.K_s]:
         left_paddle.custom_move('s')
 
-def handle_win(ball, left_paddle, right_paddle):
-    return not left_paddle.score == 5 or right_paddle.score == 5
-
 def draw_window(pixels):
     for i in range(len(pixels)):
         for j in range(len(pixels)):
@@ -95,10 +92,11 @@ def main():
     move_timer = Timer(FPS, 0.1)
     run = True
     while run:
+
         clock.tick()
         move_timer.tick()
 
-        run = handle_win(ball, left_paddle, right_paddle)
+        run = not (left_paddle.score == 5 or right_paddle.score == 5)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -107,15 +105,15 @@ def main():
         keys_pressed = pygame.key.get_pressed()
 
         if move_timer.completed:
-            handle_paddles(left_paddle, right_paddle, keys_pressed)
-            handle_ball(ball, left_paddle, len(pixels), left_score, right_score)
-            handle_ball(ball, right_paddle, len(pixels), left_score, right_score)
             left_score.draw()
             right_score.draw()
             ball.move()
             left_paddle.move()
             right_paddle.move()
             move_timer.reset()
+            handle_paddles(left_paddle, right_paddle, keys_pressed)
+            handle_ball(ball, left_paddle, len(pixels), left_score, right_score)
+            handle_ball(ball, right_paddle, len(pixels), left_score, right_score)
 
         draw_window(pixels)
 
