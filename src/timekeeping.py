@@ -3,12 +3,22 @@ import time
 class Timer:
     def __init__(self, fps, seconds):
         self._tick_count = 0
-        self._end_ticks = seconds * fps - 1
+        self._end_ticks = int(seconds * fps)
         self._completed = False
+        self._fps = fps
+        self._seconds = seconds
 
     @property
     def completed(self):
         return self._completed
+    
+    @property
+    def seconds(self):
+        return self._seconds
+
+    @seconds.setter
+    def seconds(self, seconds):
+        self._seconds = seconds
     
 
     def tick(self):
@@ -20,6 +30,9 @@ class Timer:
     def reset(self):
         self._tick_count = 0
         self._completed = False
+        self._end_ticks = int(self._seconds * self._fps)
+        if self._end_ticks <= 0:
+            self._end_ticks = 1
 
 
 class Clock:

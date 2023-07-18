@@ -112,6 +112,8 @@ class Game_Element:
         self._direction = direction
         self._score = 0
 
+        self.__draw(0, 0)
+
     @property
     def x(self):
         return self._x
@@ -162,18 +164,25 @@ class Game_Element:
         if self._direction == None:
             self.__draw(0, 0)
         else:
-            if self._x == 0:
-                self.__draw(len(self._pixels)//2, len(self._pixels)//2 - self._y)
-                self._direction = [1, 0]
-            elif self._x + self._width == len(self._pixels):
+            if self._x + self._width == len(self._pixels):
                 self.__draw(-len(self._pixels)//2, len(self._pixels)//2 - self._y)
-                self._direction = [-1, 0]
+                self._direction = [1, 0]
             elif self._y == 0 or self._y == len(self._pixels) - self._height:
                 self._direction[1] = self._direction[1] * -1
             
             self.__draw(self._direction[0], self._direction[1])
 
     def __draw(self, x_add, y_add):
+        if self._x + self._width + x_add > len(self._pixels):
+            x_add = len(self._pixels) - (self._x + self._width)
+        elif self._x + x_add < 0:
+            x_add = 0 - self._x
+
+        if self._y + self._height + y_add > len(self._pixels):
+            y_add = len(self._pixels) - (self._y + self._height)
+        elif self._y + y_add < 0:
+            y_add = 0 - self._y
+
         for i in range(self._width):
             for j in range(self._height):
                 self._pixels[self._y+j][self._x+i].color = BLACK
@@ -196,13 +205,17 @@ class Game_Element:
     
 class Number:
 
-    def __init__(self, x, y, color, pixels, num=0):
+    def __init__(self, x, y, color, pixels, num=0, num_shape=None):
         self._x = x
         self._y = y
         self._color = color
         self._pixels = pixels
-        self._num = 0
-        self._num_shape = numbers[num]
+        self._num = num
+
+        if num_shape == None:
+            self._num_shape = numbers[num]
+        else:
+            self._num_shape = num_shape
 
     @property
     def x(self):
@@ -233,3 +246,7 @@ class Number:
                 elif self._num_shape[i][j] == 0:
                     self._pixels[y+i][x+j].color = BLACK
 
+    def delete(self):
+        for i in range(len(self._num_shape)):
+            for j in range(len(self._num_shape[i])):
+                self._pixels[self._y+i][self._x+j].color = BLACK
