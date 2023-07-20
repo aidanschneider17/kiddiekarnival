@@ -37,13 +37,19 @@ class Timer:
 
 class Clock:
     def __init__(self, fps=60):
-        self._fps = 1 / fps
+        self._fps = fps
+        self._spf = 1 / fps
         self._start_time = time.time()
+
+    @property
+    def fps(self):
+        return self._fps
+    
 
     def tick(self):
         current_time = time.time()
 
-        while current_time - self._start_time < self._fps:
+        while current_time - self._start_time < self._spf:
             current_time = time.time()
 
         self._start_time = time.time()

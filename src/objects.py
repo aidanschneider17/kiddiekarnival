@@ -202,6 +202,9 @@ class Game_Element:
         elif direction == 'w' and self._x != 0:
             self.__draw(-1, 0)
 
+
+
+
     
 class Number:
 
