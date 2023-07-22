@@ -10,6 +10,7 @@ RED = (255, 0, 0)
 BLUE = (0, 0 , 255)
 GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
+ORANGE = (255, 136, 0)
 
 FPS = 60
 
@@ -25,6 +26,11 @@ SPLASH_TEXT = [[1, 0, 1, 0, 1, 1, 1, 0],
                [1, 0, 1, 0, 0, 1, 0, 0],
                [1, 0, 1, 0, 1, 1, 1, 0]]
 
+def show_score(score, matrix):
+    score_text = Number(len(matrix.pixels)//2, len(matrix.pixels)//2, ORANGE, matrix.pixels, num=score)
+    score_text.draw()
+    matrix.update()
+    time.sleep(5)
 
 def clear_pixels(pixels):
     for i in range(len(pixels)):
@@ -49,9 +55,11 @@ def main():
         splash.draw()
 
         if splash_time.completed:
+            clear_pixels(matrix.pixels)
             score, run = gameLogic.play_game(matrix, clock)
             clear_pixels(matrix.pixels)
-            print(score)
+            show_score(score, matrix)
+            clear_pixels(matrix.pixels)
 
             splash_time.reset()
 

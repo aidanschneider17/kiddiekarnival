@@ -1,8 +1,12 @@
 from samplebase import SampleBase
+import random
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+ORANGE = (255, 136, 0)
+GREEN = (0, 255, 0)
 BLUE = (0, 0 , 255)
 
 ZERO = [[1, 1, 1],
@@ -96,15 +100,13 @@ class Matrix_Update(SampleBase):
         
 
 class Game_Element:
-    def __init__(self, x, y, width, height, color, pixels, direction, score=0):
+    def __init__(self, x, y, width, height, color, pixels, score=0):
         self._x = x
         self._y = y
         self._width = width
         self._height = height
         self._color = color
         self._pixels = pixels
-        self._direction = direction
-        self._score = 0
 
         self.__draw(0, 0)
 
@@ -124,18 +126,9 @@ class Game_Element:
     def height(self):
         return self._height
     
-    
     @property
     def color(self):
         return self._color
-
-    @property
-    def direction(self):
-        return self._direction
-
-    @property
-    def score(self):
-        return self._score
 
     @x.setter
     def x(self, x):
@@ -144,27 +137,12 @@ class Game_Element:
     @y.setter
     def y(self, y):
         self._y = y
-
-    @direction.setter
-    def direction(self, direction):
-        self._direction = direction
-
-    @score.setter
-    def score(self, score):
-        self._score = score
-    
     
     def move(self):
-        if self._direction == None:
-            self.__draw(0, 0)
-        else:
-            if self._x + self._width == len(self._pixels):
-                self.__draw(-len(self._pixels)//2, len(self._pixels)//2 - self._y)
-                self._direction = [1, 0]
-            elif self._y == 0 or self._y == len(self._pixels) - self._height:
-                self._direction[1] = self._direction[1] * -1
-            
-            self.__draw(self._direction[0], self._direction[1])
+        pass
+
+    def control_move(self, direction):
+        pass
 
     def __draw(self, x_add, y_add):
         if self._x + self._width + x_add > len(self._pixels):
@@ -186,7 +164,49 @@ class Game_Element:
             for j in range(self._height):
                 self._pixels[self._y+j][self._x+i] = self._color
 
-    def custom_move(self, direction):
+
+class Ball(Game_Element):
+    def __init__(self, x, y, width, height, color, pixels, direction):
+        super().__init__(x, y, width, height, color, pixels)
+
+        self._direction = direction
+
+    @property
+    def direction(self):
+        return self._direction
+
+    @direction.setter
+    def direction(self, direction):
+        self._direction = direction
+
+    def move(self):
+        if self._direction == None:
+            self.__draw(0, 0)
+        else:
+            if self._x + self._width == len(self._pixels):
+                self.__draw(-len(self._pixels)//2, len(self._pixels)//2 - self._y)
+                self._direction = [1, 0]
+            elif self._y == 0 or self._y == len(self._pixels) - self._height:
+                self._direction[1] = self._direction[1] * -1
+            
+            self.__draw(self._direction[0], self._direction[1])
+
+
+class Paddle(Game_Element):
+    def __init__(self, x, y, width, height, color, pixels, score=0):
+        super().__init__(x, y, width, height, color, pixels)
+
+        self._score = score
+
+    @property
+    def score(self):
+        return self._score
+    
+    @score.setter
+    def score(self, score):
+        self._score = score
+
+    def control_move(self, direction):
         if direction == 'n' and self._y != 0:
             self.__draw(0, -1)
         elif direction == 's' and self._y != len(self._pixels) - self._height:
@@ -197,14 +217,34 @@ class Game_Element:
             self.__draw(-1, 0)
 
 
+class Wall(Paddle):
+    def __init__(self, x, y, width, height, color, pixels, score=0):
+        super().__init__(x, y, width, height, color, pixels, score)
+        self._angle = 0
+        self.new_angle()
+
+    @property
+    def angle(self):
+        return self._angle
     
-class Number:
+
+    def new_angle(self):
+        self._angle = random.randint(-4, 4)
+
+        if self._angle == -4 or self._angle == 4:
+            self._color = RED
+        elif self._angle == -3 or self._angle == 3:
+            self._color = ORANGE
+        elif self._angle == -2 or self._angle == 2:
+            self._color = YELLOW
+        elif self._angle == -1 or self._angle == 1:
+            self._color = GREEN
+    
+class Number(Game_Element):
 
     def __init__(self, x, y, color, pixels, num=0, num_shape=None):
-        self._x = x
-        self._y = y
-        self._color = color
-        self._pixels = pixels
+        super().__init__(x, y, 0, 0, color, pixels)
+
         self._num = num
 
         if num_shape == None:
@@ -212,14 +252,6 @@ class Number:
         else:
             self._num_shape = num_shape
             self._num = None
-
-    @property
-    def x(self):
-        return self._x
-    
-    @property
-    def y(self):
-        return self._y
 
     @property
     def num(self):
