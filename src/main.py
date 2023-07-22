@@ -1,73 +1,66 @@
 import gameLogic
-import pygame
 from objects import *
 from timekeeping import *
 import time
 import random
-
-WIDTH = 1300
-
-WIN = pygame.display.set_mode((WIDTH, WIDTH))
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0 , 255)
 GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
 
 FPS = 60
 
 PIXEL_WIDTH = 64
 PIXEL_SIZE = 10
 
-
-def set_pixels():
-    y = 10
-    pixels = []
-
-    for i in range(PIXEL_WIDTH):
-        row = []
-        x = 10
-        for j in range(PIXEL_WIDTH):
-            row.append(Pixel(x, y, PIXEL_SIZE, BLACK, WIN))
-            x += 20
-        pixels.append(row)
-        y += 20
-
-    return pixels
-
-
-def draw_window(pixels):
-    for i in range(len(pixels)):
-        for j in range(len(pixels)):
-            pixels[i][j].draw()
-
-    pygame.display.update()
+SPLASH_TEXT = [[1, 0, 1, 0, 1, 1, 1, 0],
+               [1, 0, 1, 0, 0, 1, 0, 0],
+               [1, 0, 1, 0, 0, 1, 0, 0],
+               [1, 1, 1, 0, 0, 1, 0, 0],
+               [1, 0, 1, 0, 0, 1, 0, 0],
+               [1, 0, 1, 0, 0, 1, 0, 0],
+               [1, 0, 1, 0, 0, 1, 0, 0],
+               [1, 0, 1, 0, 1, 1, 1, 0]]
 
 
 def clear_pixels(pixels):
     for i in range(len(pixels)):
         for j in range(len(pixels[i])):
-            pixels[i][j].color = BLACK
+            pixels[i][j] = BLACK
 
     
 def main():
-    pixels = set_pixels()
+    matrix = Matrix_Update()
+    splash = Number(len(matrix.pixels)//2, len(matrix.pixels)//2, YELLOW, matrix.pixels, num_shape=SPLASH_TEXT)
+    
     run = True
 
     title = [[]]
 
     clock = Clock(FPS)
+    splash_time = Timer(FPS, 5)
     while run:
         clock.tick()
-        score, run = gameLogic.play_game(pixels, clock)
-        clear_pixels(pixels)
+        splash_time.tick()
 
-        print(score)
+        splash.draw()
 
-    pygame.quit()
+        if splash_time.completed:
+            score, run = gameLogic.play_game(matrix, clock)
+            clear_pixels(matrix.pixels)
+            print(score)
+
+            splash_time.reset()
+
+        matrix.update()
 
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt as e:
+        print("Done")

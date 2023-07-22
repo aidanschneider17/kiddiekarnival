@@ -1,4 +1,4 @@
-import pygame
+from samplebase import SampleBase
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -68,38 +68,32 @@ NINE = [[1, 1, 1],
 numbers = [ZERO, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE]
 
 
-class Pixel:
-    def __init__(self, x, y, size, color, win):
-        self._rect = pygame.Rect(x, y, size, size)
-        self._color = color
-        self._win = win
+class Matrix_Update(SampleBase):
+    def __init__(self, *args, **kwargs):
+        super(Matrix_Update, self).__init__(*args, **kwargs)
+        self.process()
+
+        self._canvas = self.matrix.CreateFrameCanvas()
+        self._pixels = []
+
+        for i in range(0, self.matrix.width):
+            row = []
+            for j in range(0, self.matrix.height):
+                row.append(None)
+            self._pixels.append(row)
 
     @property
-    def x(self):
-        return self._rect.x
+    def pixels(self):
+        return self._pixels
 
-    @property
-    def y(self):
-        return self._rect.y
-
-    @property
-    def color(self):
-        return self._color
-
-    @x.setter
-    def x(self, x):
-        self._x = x
-
-    @y.setter
-    def y(self, y):
-        self._y = y
-
-    @color.setter
-    def color(self, color):
-        self._color = color
-
-    def draw(self):
-        pygame.draw.rect(self._win, self._color, self._rect)
+    def update(self):
+        for y in range(len(self._pixels)):
+            for x in range(len(self._pixels[y])):
+                color = self._pixels[y][x]
+                if color != None:
+                    self._canvas.SetPixel(x, y, color[0], color[1], color[2])
+        self._canvas = self.matrix.SwapOnVSync(self._canvas)
+        
 
 class Game_Element:
     def __init__(self, x, y, width, height, color, pixels, direction, score=0):
@@ -185,12 +179,12 @@ class Game_Element:
 
         for i in range(self._width):
             for j in range(self._height):
-                self._pixels[self._y+j][self._x+i].color = BLACK
+                self._pixels[self._y+j][self._x+i] = BLACK
         self._x += x_add
         self._y += y_add
         for i in range(self._width):
             for j in range(self._height):
-                self._pixels[self._y+j][self._x+i].color = self._color
+                self._pixels[self._y+j][self._x+i] = self._color
 
     def custom_move(self, direction):
         if direction == 'n' and self._y != 0:
@@ -201,8 +195,6 @@ class Game_Element:
             self.__draw(1, 0)
         elif direction == 'w' and self._x != 0:
             self.__draw(-1, 0)
-
-
 
 
     
@@ -219,6 +211,7 @@ class Number:
             self._num_shape = numbers[num]
         else:
             self._num_shape = num_shape
+            self._num = None
 
     @property
     def x(self):
@@ -245,11 +238,11 @@ class Number:
         for i in range(len(self._num_shape)):
             for j in range(len(self._num_shape[i])):
                 if self._num_shape[i][j] == 1:
-                    self._pixels[y+i][x+j].color = self._color
+                    self._pixels[y+i][x+j] = self._color
                 elif self._num_shape[i][j] == 0:
-                    self._pixels[y+i][x+j].color = BLACK
+                    self._pixels[y+i][x+j] = BLACK
 
     def delete(self):
         for i in range(len(self._num_shape)):
             for j in range(len(self._num_shape[i])):
-                self._pixels[self._y+i][self._x+j].color = BLACK
+                self._pixels[self._y+i][self._x+j] = BLACK

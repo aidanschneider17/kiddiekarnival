@@ -1,4 +1,3 @@
-import pygame
 from objects import *
 from timekeeping import *
 import time
@@ -41,31 +40,24 @@ def handle_ball(ball, paddle, wall, pixels_length, score, ball_timer):
 
 
 def handle_paddles(paddle, keys_pressed):
-    if keys_pressed[pygame.K_UP]:
-        paddle.custom_move('n')
-    if keys_pressed[pygame.K_DOWN]:
-        paddle.custom_move('s')
-
-def draw_window(pixels):
-    for i in range(len(pixels)):
-        for j in range(len(pixels)):
-            pixels[i][j].draw()
-
-    pygame.display.update()
+    pass
 
 
-def start_animation(pixels):
+def start_animation(matrix):
+    pixels = matrix.pixels
     countdown = Number(len(pixels)//2-1, len(pixels)//2-6, WHITE, pixels, num=3)
     while countdown.num > 0:
         countdown.draw()
-        draw_window(pixels)
+        matrix.update()
         time.sleep(1)
         countdown.num -= 1
 
     countdown.delete()
 
 
-def play_game(pixels, clock):
+def play_game(matrix, clock):
+    pixels = matrix.pixels
+
     ball = Game_Element(len(pixels)//2, len(pixels)//2, 2, 2, RED, pixels, [1, 0])
     paddle = Game_Element(len(pixels)-2, len(pixels)//2, 2, 16, BLUE, pixels, None)
     wall = Game_Element(0, 0, 2, 64, GREEN, pixels, None)
@@ -78,7 +70,7 @@ def play_game(pixels, clock):
     run = True
     end = True
 
-    start_animation(pixels)
+    start_animation(matrix)
 
     while run:
 
@@ -88,12 +80,7 @@ def play_game(pixels, clock):
 
         run = wall.score == 0
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-                end = False
-
-        keys_pressed = pygame.key.get_pressed()
+        keys_pressed = []
 
         if paddle_timer.completed and run:
             score.draw()
@@ -106,6 +93,6 @@ def play_game(pixels, clock):
             handle_ball(ball, paddle, wall, len(pixels), score, ball_timer)
             ball_timer.reset()
 
-        draw_window(pixels)
+        matrix.update()
 
     return paddle.score, end
