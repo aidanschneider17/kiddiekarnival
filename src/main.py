@@ -47,7 +47,7 @@ def main():
     title = [[]]
 
     clock = Clock(FPS)
-    splash_time = Timer(FPS, 5)
+    splash_time = Timer(FPS, 2)
     while run:
         clock.tick()
         splash_time.tick()

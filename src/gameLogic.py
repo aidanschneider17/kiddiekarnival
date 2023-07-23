@@ -60,8 +60,8 @@ def play_game(matrix, clock):
     pixels = matrix.pixels
 
     ball = Ball(len(pixels)//2, len(pixels)//2, 2, 2, RED, pixels, [1, 0])
-    paddle = Paddle(len(pixels)-2, len(pixels)//2-8, 2, 16, BLUE, pixels, None)
-    wall = Wall(0, 0, 2, 64, GREEN, pixels, None)
+    paddle = Paddle(len(pixels)-2, len(pixels)//2-8, 2, 16, BLUE, pixels)
+    wall = Wall(0, 0, 2, 64, GREEN, pixels)
     paddle.control_move('n')
     score = Number(len(pixels)//2-2, 0, WHITE, pixels)
     score.draw()

@@ -100,7 +100,7 @@ class Matrix_Update(SampleBase):
         
 
 class Game_Element:
-    def __init__(self, x, y, width, height, color, pixels, score=0):
+    def __init__(self, x, y, width, height, color, pixels):
         self._x = x
         self._y = y
         self._width = width
@@ -108,7 +108,7 @@ class Game_Element:
         self._color = color
         self._pixels = pixels
 
-        self.__draw(0, 0)
+        self.draw()
 
     @property
     def x(self):
@@ -144,7 +144,7 @@ class Game_Element:
     def control_move(self, direction):
         pass
 
-    def __draw(self, x_add, y_add):
+    def draw(self, x_add=0, y_add=0):
         if self._x + self._width + x_add > len(self._pixels):
             x_add = len(self._pixels) - (self._x + self._width)
         elif self._x + x_add < 0:
@@ -181,7 +181,7 @@ class Ball(Game_Element):
 
     def move(self):
         if self._direction == None:
-            self.__draw(0, 0)
+            self.draw(0, 0)
         else:
             if self._x + self._width == len(self._pixels):
                 self.__draw(-len(self._pixels)//2, len(self._pixels)//2 - self._y)
@@ -189,7 +189,7 @@ class Ball(Game_Element):
             elif self._y == 0 or self._y == len(self._pixels) - self._height:
                 self._direction[1] = self._direction[1] * -1
             
-            self.__draw(self._direction[0], self._direction[1])
+            self.draw(self._direction[0], self._direction[1])
 
 
 class Paddle(Game_Element):
@@ -207,19 +207,20 @@ class Paddle(Game_Element):
         self._score = score
 
     def control_move(self, direction):
+        print("here")
         if direction == 'n' and self._y != 0:
-            self.__draw(0, -1)
+            Game_Element.draw(self, 0, -1)
         elif direction == 's' and self._y != len(self._pixels) - self._height:
-            self.__draw(0, 1)
+            Game_Element.draw(self, 0, 1)
         elif direction == 'e' and self._x != len(self._pixels) - self._width:
-            self.__draw(1, 0)
+            Game_Element.draw(self, 1, 0)
         elif direction == 'w' and self._x != 0:
-            self.__draw(-1, 0)
+            Game_Element.draw(self, -1, 0)
 
 
 class Wall(Paddle):
     def __init__(self, x, y, width, height, color, pixels, score=0):
-        super().__init__(x, y, width, height, color, pixels, score)
+        super().__init__(x, y, width, height, color, pixels)
         self._angle = 0
         self.new_angle()
 
@@ -231,27 +232,27 @@ class Wall(Paddle):
     def new_angle(self):
         self._angle = random.randint(-4, 4)
 
-        if self._angle == -4 or self._angle == 4:
+        if self.angle == -4 or self.angle == 4:
             self._color = RED
-        elif self._angle == -3 or self._angle == 3:
+        elif self.angle == -3 or self.angle == 3:
             self._color = ORANGE
-        elif self._angle == -2 or self._angle == 2:
+        elif self.angle == -2 or self.angle == 2:
             self._color = YELLOW
-        elif self._angle == -1 or self._angle == 1:
+        elif self.angle == -1 or self.angle == 1:
             self._color = GREEN
+            
+        Game_Element.draw(self)
     
 class Number(Game_Element):
 
     def __init__(self, x, y, color, pixels, num=0, num_shape=None):
-        super().__init__(x, y, 0, 0, color, pixels)
-
-        self._num = num
-
         if num_shape == None:
+            self._num = num
             self._num_shape = numbers[num]
         else:
-            self._num_shape = num_shape
             self._num = None
+            self._num_shape = num_shape
+        super().__init__(x, y, 0, 0, color, pixels)
 
     @property
     def num(self):
@@ -261,9 +262,9 @@ class Number(Game_Element):
     def num(self, num):
         self._num = num
         self._num_shape = numbers[num]
-        self.draw()
+        self.draw(0, 0)
     
-    def draw(self):
+    def draw(self, x_add=0, y_add=0):
         x = self._x
         y = self._y
 
