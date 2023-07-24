@@ -2,6 +2,7 @@ from objects import *
 from timekeeping import *
 import time
 import random
+import keyboard
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -40,8 +41,12 @@ def handle_ball(ball, paddle, wall, pixels_length, score, ball_timer):
             ball.direction = [x_direction, 2]
 
 
-def handle_paddles(paddle, keys_pressed):
-    pass
+def handle_paddles(paddle):
+    if keyboard.is_pressed("w"):
+        paddle.control_move('n')
+
+    if keyboard.is_pressed("s"):
+        paddle.control_move('s')
 
 
 def start_animation(matrix):
@@ -81,13 +86,11 @@ def play_game(matrix, clock):
 
         run = wall.score == 0
 
-        keys_pressed = []
-
         if paddle_timer.completed and run:
             score.draw()
             paddle.move()
             paddle_timer.reset()
-            handle_paddles(paddle, keys_pressed)
+            handle_paddles(paddle)
 
         if ball_timer.completed and run:
             ball.move()
