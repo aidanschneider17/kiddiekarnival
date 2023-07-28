@@ -207,7 +207,6 @@ class Paddle(Game_Element):
         self._score = score
 
     def control_move(self, direction):
-        print("here")
         if direction == 'n' and self._y != 0:
             Game_Element.draw(self, 0, -1)
         elif direction == 's' and self._y != len(self._pixels) - self._height:

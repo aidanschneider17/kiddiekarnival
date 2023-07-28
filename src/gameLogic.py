@@ -2,7 +2,8 @@ from objects import *
 from timekeeping import *
 import time
 import random
-import keyboard
+import sys
+import threading
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -11,6 +12,9 @@ BLUE = (0, 0 , 255)
 GREEN = (0, 255, 0)
 
 WINNER = 1
+
+keys_pressed = dict([('w', False), ('s', False)])
+run = True
 
 def handle_ball(ball, paddle, wall, pixels_length, score, ball_timer):
     x_direction = None
@@ -38,15 +42,18 @@ def handle_ball(ball, paddle, wall, pixels_length, score, ball_timer):
         elif ball.y < paddle.y + (paddle.height / 4 * 3):
             ball.direction = [x_direction, 1]
         else:
-            ball.direction = [x_direction, 2]
-
+            ball.direction = [x_direction, 2]  
 
 def handle_paddles(paddle):
-    if keyboard.is_pressed("w"):
+    global keys_pressed
+    
+    if keys_pressed['w']:
         paddle.control_move('n')
-
-    if keyboard.is_pressed("s"):
+        keys_pressed['w'] = False
+        
+    if keys_pressed['s']:
         paddle.control_move('s')
+        keys_pressed['s'] = False
 
 
 def start_animation(matrix):
@@ -59,11 +66,23 @@ def start_animation(matrix):
         countdown.num -= 1
 
     countdown.delete()
+    
+def get_input():
+    global keys_pressed
+    global run
 
+    while run:
+        key = sys.stdin.buffer.read(1)[0]
+        if key == 119:
+            keys_pressed['w'] = True
+        
+        elif key == 115:
+            keys_pressed['s'] = True
 
 def play_game(matrix, clock):
+    global run
+    
     pixels = matrix.pixels
-
     ball = Ball(len(pixels)//2, len(pixels)//2, 2, 2, RED, pixels, [1, 0])
     paddle = Paddle(len(pixels)-2, len(pixels)//2-8, 2, 16, BLUE, pixels)
     wall = Wall(0, 0, 2, 64, GREEN, pixels)
@@ -73,19 +92,19 @@ def play_game(matrix, clock):
 
     ball_timer = Timer(clock.fps, 0.1)
     paddle_timer = Timer(clock.fps, 0.06)
-    run = True
     end = True
 
     start_animation(matrix)
-
+    t = threading.Thread(target=get_input, daemon=True)
+    t.start()
+    
     while run:
-
         clock.tick()
         paddle_timer.tick()
         ball_timer.tick()
 
         run = wall.score == 0
-
+        
         if paddle_timer.completed and run:
             score.draw()
             paddle.move()
@@ -98,5 +117,6 @@ def play_game(matrix, clock):
             ball_timer.reset()
 
         matrix.update()
-
+        
+    run = True
     return paddle.score, end

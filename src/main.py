@@ -3,6 +3,7 @@ from objects import *
 from timekeeping import *
 import time
 import random
+import tty, sys, termios
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -39,36 +40,39 @@ def clear_pixels(pixels):
 
     
 def main():
-    matrix = Matrix_Update()
-    splash = Number(len(matrix.pixels)//2, len(matrix.pixels)//2, YELLOW, matrix.pixels, num_shape=SPLASH_TEXT)
-    
-    run = True
+    try:
+        matrix = Matrix_Update()
+        splash = Number(len(matrix.pixels)//2, len(matrix.pixels)//2, YELLOW, matrix.pixels, num_shape=SPLASH_TEXT)
+        filedescriptors = termios.tcgetattr(sys.stdin)
+        tty.setcbreak(sys.stdin)
+        
+        run = True
 
-    title = [[]]
+        title = [[]]
 
-    clock = Clock(FPS)
-    splash_time = Timer(FPS, 2)
-    while run:
-        clock.tick()
-        splash_time.tick()
+        clock = Clock(FPS)
+        splash_time = Timer(FPS, 2)
+        while run:
+            clock.tick()
+            splash_time.tick()
 
-        splash.draw()
+            splash.draw()
 
-        if splash_time.completed:
-            clear_pixels(matrix.pixels)
-            score, run = gameLogic.play_game(matrix, clock)
-            clear_pixels(matrix.pixels)
-            show_score(score, matrix)
-            clear_pixels(matrix.pixels)
+            if splash_time.completed:
+                clear_pixels(matrix.pixels)
+                score, run = gameLogic.play_game(matrix, clock)
+                clear_pixels(matrix.pixels)
+                show_score(score, matrix)
+                clear_pixels(matrix.pixels)
 
-            splash_time.reset()
+                splash_time.reset()
 
-        matrix.update()
+            matrix.update()
+    except KeyboardInterrupt as e:
+        print("Done")
+    termios.tcsetattr(sys.stdin, termios.TCSADRAIN, filedescriptors)
 
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt as e:
-        print("Done")
+    main()
