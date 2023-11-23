@@ -145,16 +145,6 @@ class Game_Element:
         pass
 
     def draw(self, x_add=0, y_add=0):
-        if self._x + self._width + x_add > len(self._pixels):
-            x_add = len(self._pixels) - (self._x + self._width)
-        elif self._x + x_add < 0:
-            x_add = 0 - self._x
-
-        if self._y + self._height + y_add > len(self._pixels):
-            y_add = len(self._pixels) - (self._y + self._height)
-        elif self._y + y_add < 0:
-            y_add = 0 - self._y
-
         for i in range(self._width):
             for j in range(self._height):
                 self._pixels[self._y+j][self._x+i] = BLACK
@@ -166,10 +156,11 @@ class Game_Element:
 
 
 class Ball(Game_Element):
-    def __init__(self, x, y, width, height, color, pixels, direction):
+    def __init__(self, x, y, width, height, color, pixels, direction, paddle):
         super().__init__(x, y, width, height, color, pixels)
 
         self._direction = direction
+        self._paddle = paddle
 
     @property
     def direction(self):
@@ -188,8 +179,21 @@ class Ball(Game_Element):
                 self._direction = [1, 0]
             elif self._y == 0 or self._y == len(self._pixels) - self._height:
                 self._direction[1] = self._direction[1] * -1
+
+            x_add = self.direction[0]
+            y_add = self.direction[1]
+
+            if self._x + self._width + self.direction[0] > len(self._pixels):
+                x_add = len(self._pixels) - (self._x + self._width)
+            elif self._x + x_add < 0:
+                x_add = 0 - self._x
+
+            if self._y + self._height + self._direction[1] > len(self._pixels):
+                y_add = len(self._pixels) - (self._y + self._height)
+            elif self._y + y_add < 0:
+                y_add = 0 - self._y
             
-            self.draw(self._direction[0], self._direction[1])
+            self.draw(x_add, y_add)
 
 
 class Paddle(Game_Element):
@@ -220,27 +224,33 @@ class Paddle(Game_Element):
 class Wall(Paddle):
     def __init__(self, x, y, width, height, color, pixels, score=0):
         super().__init__(x, y, width, height, color, pixels)
-        self._angle = 0
-        self.new_angle()
+        self._angle = 1
+        self._color = GREEN
+        Game_Element.draw(self)
 
     @property
     def angle(self):
         return self._angle
-    
 
-    def new_angle(self):
-        self._angle = random.randint(-4, 4)
+    @angle.setter
+    def angle(self, angle):
+        self._angle = angle
 
-        if self.angle == -4 or self.angle == 4:
+        if self._angle == -4 or self._angle == 4:
             self._color = RED
-        elif self.angle == -3 or self.angle == 3:
+        elif self._angle == -3 or self._angle == 3:
             self._color = ORANGE
-        elif self.angle == -2 or self.angle == 2:
+        elif self._angle == -2 or self._angle == 2:
             self._color = YELLOW
-        elif self.angle == -1 or self.angle == 1:
+        elif self._angle == -1 or self._angle == 1:
             self._color = GREEN
-            
+        elif self._angle == 0:
+            self._color = WHITE
+        else:
+            raise IOError("Invalid angle")
+
         Game_Element.draw(self)
+
     
 class Number(Game_Element):
 
@@ -278,3 +288,30 @@ class Number(Game_Element):
         for i in range(len(self._num_shape)):
             for j in range(len(self._num_shape[i])):
                 self._pixels[self._y+i][self._x+j] = BLACK
+
+class Custom_Shape(Game_Element):
+
+    def __init__(self, x, y, pixels, path):
+        super().__init__(x, y, len(layout)[0], len(layout), color, pixels)
+
+        self._layout = self.read_file(path)
+
+    def read_file(self, path):
+        layout = []
+
+        with open(path, 'r') as f:
+            reader = csv.reader(f)
+
+            for row in reader:
+                layout.append(row)
+
+        return layout
+
+    def draw(self, x_add=0, y_add=0):
+        x = self._x
+        y = self._y
+
+        for i in range(y, y+self._height):
+            for j in range(x, x+self._width):
+                if self._layout[j][i] != BLACK:
+                    self._pixels[j][i] = self._layout[j][i]

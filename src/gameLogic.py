@@ -21,9 +21,21 @@ def handle_ball(ball, paddle, wall, pixels_length, score, ball_timer):
 
     if ball.x == wall.x + wall.width:
         x_direction = 1
+        
+        if paddle.score < 3:
+            wall.angle = random.randint(-2, 2)
+        elif paddle.score == 3:
+            wall.angle = 3 - 3 * 2 * random.randint(0, 1)
+        elif paddle.score < 6:
+            y_direction = random.randint(2, 4)
+            wall.angle =  y_direction - y_direction * 2 * random.randint(0, 1)
+        elif paddle.score == 6:
+            wall.angle = 4 - 4 * 2 * random.randint(0, 1)
+        else:
+            y_direction = random.randint(3, 4)
+            wall.angle =  y_direction - y_direction * 2 * random.randint(0, 1)
         ball.direction = [x_direction, wall.angle]
-        wall.new_angle()
-        ball_timer.seconds = ball_timer.seconds - 0.01
+        ball_timer.seconds = ball_timer.seconds - 0.02
         
     elif ball.x + ball.width == pixels_length:
         wall.score += 1
@@ -83,9 +95,9 @@ def play_game(matrix, clock):
     global run
     
     pixels = matrix.pixels
-    ball = Ball(len(pixels)//2, len(pixels)//2, 2, 2, RED, pixels, [1, 0])
     paddle = Paddle(len(pixels)-2, len(pixels)//2-8, 2, 16, BLUE, pixels)
     wall = Wall(0, 0, 2, 64, GREEN, pixels)
+    ball = Ball(len(pixels)//2, len(pixels)//2, 2, 2, RED, pixels, [1, 0], paddle)
     paddle.control_move('n')
     score = Number(len(pixels)//2-2, 0, WHITE, pixels)
     score.draw()

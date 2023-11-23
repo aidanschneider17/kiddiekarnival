@@ -4,6 +4,7 @@ from timekeeping import *
 import time
 import random
 import tty, sys, termios
+import threading
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -18,14 +19,7 @@ FPS = 60
 PIXEL_WIDTH = 64
 PIXEL_SIZE = 10
 
-SPLASH_TEXT = [[1, 0, 1, 0, 1, 1, 1, 0],
-               [1, 0, 1, 0, 0, 1, 0, 0],
-               [1, 0, 1, 0, 0, 1, 0, 0],
-               [1, 1, 1, 0, 0, 1, 0, 0],
-               [1, 0, 1, 0, 0, 1, 0, 0],
-               [1, 0, 1, 0, 0, 1, 0, 0],
-               [1, 0, 1, 0, 0, 1, 0, 0],
-               [1, 0, 1, 0, 1, 1, 1, 0]]
+keys_pressed = dict(('w', False))
 
 def show_score(score, matrix):
     score_text = Number(len(matrix.pixels)//2, len(matrix.pixels)//2, ORANGE, matrix.pixels, num=score)
@@ -38,11 +32,20 @@ def clear_pixels(pixels):
         for j in range(len(pixels[i])):
             pixels[i][j] = BLACK
 
+def get_input():
+    global keys_pressed
+    found = True
+
+    while found:
+    key = sys.stdin.buffer.read(1)[0]
+        if key == 119:
+            keys_pressed['w'] = True
+            found = False
     
 def main():
     try:
         matrix = Matrix_Update()
-        splash = Number(len(matrix.pixels)//2, len(matrix.pixels)//2, YELLOW, matrix.pixels, num_shape=SPLASH_TEXT)
+        splash = Custom_Shape(0, 0, matrix.pixels, 'splash.csv')
         filedescriptors = termios.tcgetattr(sys.stdin)
         tty.setcbreak(sys.stdin)
         
@@ -51,21 +54,21 @@ def main():
         title = [[]]
 
         clock = Clock(FPS)
-        splash_time = Timer(FPS, 2)
+
+        t = threading.Thread(target=get_input, daemon=True)
+        t.start()
         while run:
             clock.tick()
-            splash_time.tick()
 
             splash.draw()
 
-            if splash_time.completed:
+            if keys_pressed['w']:
                 clear_pixels(matrix.pixels)
                 score, run = gameLogic.play_game(matrix, clock)
                 clear_pixels(matrix.pixels)
                 show_score(score, matrix)
                 clear_pixels(matrix.pixels)
-
-                splash_time.reset()
+                t.start()
 
             matrix.update()
     except KeyboardInterrupt as e:
